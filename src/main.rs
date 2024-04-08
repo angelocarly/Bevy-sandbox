@@ -1,8 +1,3 @@
-//! A compute shader that simulates Conway's Game of Life.
-//!
-//! Compute shaders use the GPU for computing arbitrary information, that may be independent of what
-//! is rendered to the screen.
-
 use bevy::{
     prelude::*,
     render::{
@@ -80,11 +75,8 @@ impl Plugin for GameOfLifeComputePlugin {
         );
 
         let mut render_graph = render_app.world.resource_mut::<RenderGraph>();
-        render_graph.add_node("game_of_life", GameOfLifeNode::default());
-        render_graph.add_node_edge(
-            "game_of_life",
-            bevy::render::main_graph::node::CAMERA_DRIVER,
-        );
+        render_graph.add_node("compute", GameOfLifeNode::default());
+        render_graph.add_node_edge("compute", bevy::render::main_graph::node::CAMERA_DRIVER);
     }
 
     fn finish(&self, app: &mut App) {
@@ -140,9 +132,7 @@ impl FromWorld for GameOfLifePipeline {
                         count: None,
                     }],
                 });
-        let shader = world
-            .resource::<AssetServer>()
-            .load("shaders/game_of_life.wgsl");
+        let shader = world.resource::<AssetServer>().load("shaders/compute.wgsl");
         let pipeline_cache = world.resource::<PipelineCache>();
         let init_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: None,
